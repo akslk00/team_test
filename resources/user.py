@@ -44,9 +44,9 @@ class UserRegisterResource(Resource) :
         try :
             conncetion = get_connection()
             query = '''insert into user
-                    (username, email, password)
+                    ( email, password, nickname, age, username)
                     values
-                    (%s,%s,%s);'''
+                    (%s,%s,%s,%s,%s);'''
             record = (data['username'],
                       data['email'],
                       password)
@@ -61,10 +61,11 @@ class UserRegisterResource(Resource) :
 
             cursor.close()
             conncetion.close()
+        
         except Error as e :
             print(e)
-            cursor.close()
-            conncetion.close()
+            # cursor.close()
+            # conncetion.close()
             return {'error' : str(e)}, 500
         
         # 6. user 데이블의 id 로
