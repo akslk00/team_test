@@ -10,6 +10,7 @@ from email_validator import validate_email, EmailNotValidError
 
 from utils import check_password, hash_password
 
+# 회원가입
 class UserRegisterResource(Resource) :
 
     def post(self) :
@@ -75,7 +76,7 @@ class UserRegisterResource(Resource) :
         return {'result' : 'success',
                 'access_token' : access_token}, 200
 
-
+# 로그인
 class UserLoginResource(Resource):
 
     def post(self) :
@@ -137,6 +138,7 @@ class UserLoginResource(Resource):
 
 jwt_blocklist = set()
 
+# 로그아웃
 class UserLogoutResource(Resource):
 
     @jwt_required()
