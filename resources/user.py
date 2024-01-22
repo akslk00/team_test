@@ -47,9 +47,11 @@ class UserRegisterResource(Resource) :
                     ( email, password, nickname, age, username)
                     values
                     (%s,%s,%s,%s,%s);'''
-            record = (data['username'],
-                      data['email'],
-                      password)
+            record = (data['email'],
+                      password,
+                      data['nickname'],
+                      data['age'],
+                      data['username'])
             
             cursor = conncetion.cursor()
             cursor.execute(query, record)
