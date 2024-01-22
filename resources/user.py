@@ -153,6 +153,45 @@ class UserLogoutResource(Resource):
         jwt_blocklist.add(jti)
 
         return {"result" : "success"}, 200
+    
+# 회원탈퇴
+class UserDelete(Resource) :
+
+    @jwt_required()
+    def delete(self) :
+
+        jti = get_jwt()['jti']
+        print(jti)
+
+        user_email = get_jwt()['sub']  # 사용자의 이메일을 가져오기
+        print(user_email)
+
+
+        try :
+            connection = get_connection()
+            query = '''delete from user
+                        where id = %s;'''
+                        
+            record = (user_email,)
+
+            cursor = connection.cursor()
+            cursor.execute(query, record)
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+        
+        except Error as e:
+            print(e)
+            cursor.close()
+            connection.close()
+            return{"error" : str(e)}, 500
+        
+        
+        return{"result" : "success"}, 200
+        
+    
+
 
 
 
