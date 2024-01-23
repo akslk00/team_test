@@ -1,8 +1,10 @@
+from datetime import datetime
 from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from mysql_connention import get_connection
 from mysql.connector import Error
+
 
 
 # resources 폴더 안에 만드는 파일에는,
@@ -11,12 +13,17 @@ from mysql.connector import Error
 #  API를 만들기 위해서는 flask_restful 라이브러라의 
 # Resource 클래스를 상속해서 만들어야 한다
 
+# 전체 레시피(간략히)
 class RecipeListResource(Resource) :
 
     # JWT 토큰이 헤어데 필수로 있어야 한다는 뜻.
     # 토큰이 없으면, 이 API는 실행이 안된다.
     @jwt_required()
     def get(self) :
+
+        order = request.args.get('order')
+        offset = request.args.get('offset')
+        limit = request.args.get('limit')
 
         
 
@@ -28,8 +35,100 @@ class RecipeListResource(Resource) :
         try :
             connection = get_connection()
 
-            query = ''' select *
-                            from posting; '''
+            query = ''' select p.id as postingid, p.imageURL, u.nickname, p.subtitle, 
+                                    ifnull(r.rating,0) as avgRating,
+                                    if( f.id is null  , 0 , 1 ) as isFavorite
+                                    from posting p
+                                    join user u
+                                    on u.id = p.userId
+                                    left join review r
+                                    on p.id = r.postingId
+                                    left join favorites f
+                                    on p.id = f.postingId
+                                    group by p.id
+                                    order by '''+ order +''' desc
+                                    limit '''+offset +''', '''+limit+''';'''
+            
+            # 중요!!
+            # select 문에서 커서를 만들 때에는 
+            # 파라미터 dictionary = True 로 해준다
+            # 왜? 리스트와 딕셔너리 형태로 가져오기 때문에
+            # 클라이언트에게 json 형식으로 보내줄 수 있다.
+            
+            cursor = connection.cursor(dictionary=True)
+
+            cursor.execute(query)
+
+            result_list = cursor.fetchall()
+
+
+            # datetime 은 파이썬에서 사용하는 데이터타입 이므로
+            #  json 형식이 아니다. 따라서
+            #  json은 문자열이나 숫자만 가능하므로
+            #  datetime을 문자열로 바꿔줘야 한다.
+
+            # i = 0
+            # for row in result_list :
+            #     result_list[i]['createdAt']= row['createdAt'].isoformat()
+            #     result_list[i]['updatedAt']= row['updatedAt'].isoformat()
+            #     i = i + 1
+
+            print()
+            print(result_list)
+            print()
+
+
+            cursor.close()
+            connection.close()
+
+        except Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+            return {"result" : "fail" , "error" : str(e)}, 500
+
+
+        return {"result" : "success" , 
+                "items" : result_list,
+                "count" : len(result_list)} , 200
+
+
+# 전체 레시피(더보기)
+class RecipeListMoreShowResource(Resource) :
+
+    # JWT 토큰이 헤어데 필수로 있어야 한다는 뜻.
+    # 토큰이 없으면, 이 API는 실행이 안된다.
+    @jwt_required()
+    def get(self) :
+
+        order = request.args.get('order')
+        offset = request.args.get('offset')
+        limit = request.args.get('limit')
+
+        
+
+        # 1. 클라이언트로부터 데이터를 받아온다
+        # 받아올 데이터 없음.
+
+        # 2. DB에 저장된 데이터를 가져온다.
+
+        try :
+            connection = get_connection()
+
+            query = ''' select p.id as postingid, p.imageURL, p.title, u.nickname,
+                                    p.createdAt,p.updatedAt,
+                                    ifnull(r.rating,0) as avgRating,
+                                    if( f.id is null  , 0 , 1 ) as isFavorite
+                                    from posting p
+                                    join user u
+                                    on u.id = p.userId
+                                    left join review r
+                                    on p.id = r.postingId
+                                    left join favorites f
+                                    on p.id = f.postingId
+                                    group by p.id
+                                    order by '''+ order +''' desc
+                                    limit '''+offset +''', '''+limit+''';'''
             
             # 중요!!
             # select 문에서 커서를 만들 때에는 
@@ -72,8 +171,9 @@ class RecipeListResource(Resource) :
 
         return {"result" : "success" , 
                 "items" : result_list,
-                "count" : len(result_list)} , 200
+                "count" : len(result_list)} , 200    
 
+# 안씀
 class RecipeResource(Resource) :
 
 
@@ -132,6 +232,7 @@ class RecipeResource(Resource) :
               return {"result" : "success",
                 "items" : result_list[0]} , 200
 
+# 상세 레시피
 class RecipeDetail(Resource) :
     
         
@@ -149,15 +250,15 @@ class RecipeDetail(Resource) :
         try :
             connection = get_connection()
             
-            query = '''select u.nickname,
- p.id postingId, p.userId userId, p.title, p.content, p.imageURL, p.ingredients, p.recipe, p.createdAt,p.updatedAt,
-r.rating, r.content
-from posting p
-join user u
-on u.id = p.userId
-left join review r
-on p.id = r.postingId
-where p.id = %s; '''
+            query = '''select u.id, u.nickname,
+                                    p.*,
+                                    r.rating, r.content
+                                    from posting p
+                                    join user u
+                                    on u.id = p.userId
+                                    left join review r
+                                    on p.id = r.postingId
+                                    where p.id = %s; '''
             
             recode = (posting_id , )
 
@@ -172,9 +273,12 @@ where p.id = %s; '''
 
             i = 0
             for row in result_list :
-                result_list[0]['createdAt']= row['createdAt'].isoformat()
+                result_list[0]['createdAt']=row['createdAt'].isoformat()
                 result_list[0]['updatedAt']= row['updatedAt'].isoformat()
                 i = i + 1
+        
+
+            # datetime.datetime.strpftime('%Y-%m-%d %H시 %M분')
 
 
             cursor.close()
@@ -195,12 +299,17 @@ where p.id = %s; '''
         else :
               return {"result" : "success",
                 "items" : result_list[0]} , 200            
- 
+
+# 나만의 레시피 
 class RecipeMeResource(Resource) :
 
 
     @jwt_required()
     def get(self) :
+
+        order = request.args.get('order')
+        offset = request.args.get('offset')
+        limit = request.args.get('limit')
 
         user_id = get_jwt_identity()
 
@@ -210,9 +319,21 @@ class RecipeMeResource(Resource) :
 
         try :
             connection = get_connection()
-            query = '''select *
-                        from posting
-                        where userId = %s;'''
+            query = ''' select p.id as postingid, p.imageURL, p.title, u.nickname,
+                                    p.createdAt,p.updatedAt,
+                                    ifnull(r.rating,0) as avgRating,
+                                    if( f.id is null  , 0 , 1 ) as isFavorite
+                                    from posting p
+                                    join user u
+                                    on u.id = p.userId
+                                    left join review r
+                                    on p.id = r.postingId
+                                    left join favorites f
+                                    on p.id = f.postingId
+                                    where u.id = %s
+                                    group by p.id
+                                    order by '''+ order +''' desc
+                                    limit '''+offset +''', '''+limit+''';'''
             
             record = (user_id , )
 
@@ -246,7 +367,8 @@ class RecipeMeResource(Resource) :
                 'items' : result_list,
                 'count' : len(result_list)
                   } , 200
-    
+
+# 내가 팔로우한 사람의 레시피   
 class RecipeFollow(Resource) :
     
     @jwt_required()
@@ -278,7 +400,8 @@ class RecipeFollow(Resource) :
                                     on u.id = p.userId
                                     left join review r
                                     on u.id = r.userId 
-                                    where followerId = %s;'''
+                                    where followerId = %s
+                                    order by createdAt desc;'''
             record = (user_id , )
             
             # 중요!!
