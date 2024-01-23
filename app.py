@@ -1,8 +1,10 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
+from resources.follows import FollowResource
+from resources.history import historyTop10
 
-from resources.recipe import RecipeDetail, RecipeFollow, RecipeListMoreShowResource, RecipeListResource, RecipeMeResource, RecipeResource
+from resources.recipelist import RecipeDetail, RecipeFollow, RecipeListMoreShowResource, RecipeListResource, RecipeMeResource, RecipeResource
 
 from resources.recipes import MyRecipeResource, RecipeResource
 
@@ -34,14 +36,21 @@ api.add_resource( UserLogoutResource,'/user/logout')
 api.add_resource( UserDelete,'/user/delete')
 api.add_resource( UserPasswordUpdate,'/user/passwordUpdate')
 
-
+# 레시피 전체보기(간략히)
 api.add_resource(RecipeListResource, '/recipe')
+# 레시피 전체보기(더보기)
 api.add_resource(RecipeListMoreShowResource, '/recipemore')
+# 레시피 상세보기
 api.add_resource( RecipeDetail , '/recipe/<int:posting_id>')
+# 내 레시피 보기
 api.add_resource(RecipeMeResource, '/myrecipe')
+# 팔로워 레시피 보기
 api.add_resource(RecipeFollow, '/followrecipe')
+# 인기검색어 Top10
+api.add_resource(historyTop10, '/history')
 
-
+# 팔로우 
+api.add_resource(  FollowResource , '/follow/<int:followee_id>')
 # 레시피 작성
 api.add_resource(RecipeResource, '/recipes/add')
 #레시피 수정,삭제
