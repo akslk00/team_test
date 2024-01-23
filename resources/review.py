@@ -15,8 +15,8 @@ class ReviewResource(Resource):
         data = request.get_json()
         user_id = get_jwt_identity()
 
-        if int(data['rating'])<1 and int(data['rating'])>6:
-            return{'error': '별점은 1부터 5까지만 가능 합니다.'},400
+        if int(data['rating']) < 1 or int(data['rating']) > 5:
+            return {'error': '별점은 1부터 5까지만 가능합니다.'}, 400
         
         try :
             connection = get_connection()
