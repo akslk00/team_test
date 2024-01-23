@@ -1,7 +1,7 @@
 import datetime
 from flask import request
 from flask import request
-from flask_jwt_extended import create_access_token, get_jwt, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required
 from flask_restful import Resource
 from mysql_connention import get_connection
 from mysql.connector import Error
@@ -166,6 +166,8 @@ class UserDelete(Resource) :
         user_email = get_jwt()['sub']  # 사용자의 이메일을 가져오기
         print(user_email)
 
+    
+
 
         try :
             connection = get_connection()
@@ -191,7 +193,49 @@ class UserDelete(Resource) :
         
         return{"result" : "success"}, 200
         
-    
+# 비밀번호 재설정 
+class UserPasswordUpdate(Resource) :
+
+    @jwt_required()
+    def put(self) :
+        
+        user_id = get_jwt_identity()
+
+
+        data = request.get_json()
+
+        if len (data['password']) < 4 or len (data['password']) > 14 :
+            return {'error' : '비번길이가 올바르지 않습니다.'}, 400
+        
+        # 4. 비밀번호를 암호화 한다.
+        password = hash_password(data['password'])
+        
+        print(password)
+
+        try :
+            connection = get_connection()
+            
+            query = '''update user
+                        set password = %s
+                        where id = %s;'''
+                        
+            record = (password ,user_id)
+
+            cursor = connection.cursor()
+            cursor.execute(query, record)
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+        
+        except Error as e:
+            print(e)
+            cursor.close()
+            connection.close()
+            return{"error" : str(e)}, 500
+        
+        
+        return{"result" : "비밀번호 변경이 완료되었습니다."}, 200
 
 
 
