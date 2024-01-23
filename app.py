@@ -48,9 +48,9 @@ api.add_resource(RecipeMeResource, '/myrecipe')
 api.add_resource(RecipeFollow, '/followrecipe')
 # 인기검색어 Top10
 api.add_resource(historyTop10, '/history')
-
 # 팔로우 
 api.add_resource(  FollowResource , '/follow/<int:followee_id>')
+
 # 레시피 작성
 api.add_resource(RecipeResource, '/recipes/add')
 #레시피 수정,삭제
