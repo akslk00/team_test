@@ -5,7 +5,7 @@ from mysql.connector import Error
 from mysql_connention import get_connection
 
 class FavoritesResource(Resource):
-
+    # 즐겨찾기 추가
     @jwt_required()
     def post(self,postingId) :
 
@@ -38,7 +38,7 @@ class FavoritesResource(Resource):
         
         return {'result' : 'success'} , 200
     
-
+    # 즐겨찾기 해제
     @jwt_required()
     def delete(self,postingId) :
 
