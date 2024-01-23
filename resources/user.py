@@ -169,6 +169,7 @@ class UserDelete(Resource) :
 
         try :
             connection = get_connection()
+            
             query = '''delete from user
                         where id = %s;'''
                         
