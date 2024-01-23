@@ -2,7 +2,7 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
-from resources.recipe import RecipeDetail, RecipeFollow, RecipeListResource, RecipeMeResource, RecipeResource
+from resources.recipe import RecipeDetail, RecipeFollow, RecipeListMoreShowResource, RecipeListResource, RecipeMeResource, RecipeResource
 
 from resources.recipes import MyRecipeResource, RecipeResource
 
