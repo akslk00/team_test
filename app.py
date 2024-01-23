@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
+from resources.favorites import FavoritesResource
 from resources.follows import FollowResource
 from resources.history import historyTop10
 
@@ -51,6 +52,9 @@ api.add_resource(historyTop10, '/history')
 # 팔로우 
 api.add_resource(  FollowResource , '/follow/<int:followee_id>')
 
+# 즐겨찾기 
+api.add_resource(FavoritesResource,'/favorites/<int:postingId>')
+
 # 레시피 작성
 api.add_resource(RecipeResource, '/recipes/add')
 #레시피 수정,삭제
@@ -63,3 +67,5 @@ api.add_resource(MyReviewResource,'/review/<int:postingId>/<int:reviewId>')
 
 if __name__ == '__main__':
     app.run()
+
+
