@@ -17,7 +17,7 @@ class RecipeResource(Resource):
 
         file = request.files.get('photo')
         title = request.form.get('title')
-        content = request.form.get('content')
+        subTitle = request.form.get('subTitle')
         ingredients = request.form.get('ingredients')
         recipe = request.form.get('recipe')
     
@@ -51,10 +51,10 @@ class RecipeResource(Resource):
             connection = get_connection()
 
             query = '''insert into posting
-                        (userId, title,content, imageURL, ingredients,recipe)
+                        (userId, title,subTitle, imageURL, ingredients,recipe)
                         values
                         (%s,%s,%s,%s,%s,%s);'''
-            record = (user_id,title,content,
+            record = (user_id,title,subTitle,
                       Config.S3_LOCATION+new_file_name,ingredients,recipe,
                       )
             cursor = connection.cursor()
@@ -82,7 +82,7 @@ class MyRecipeResource(Resource):
 
         file = request.files.get('photo')
         title = request.form.get('title')
-        content = request.form.get('content')
+        subTitle = request.form.get('subTitle')
         ingredients = request.form.get('ingredients')
         recipe = request.form.get('recipe')
 
@@ -110,14 +110,14 @@ class MyRecipeResource(Resource):
 
         try:
             connection = get_connection()
-            query = '''update Memo
+            query = '''update posting
                         set title=%s,
-                            content = %s,
+                            subTitle = %s,
                             imageURL = %s,
                             ingredients = %s,
                             recipe = %s
                         where id=%s and userId=%s;'''
-            record =(title,content,Config.S3_LOCATION+new_file_name,ingredients,recipe,Myrecipes_id,user_id)
+            record =(title,subTitle,Config.S3_LOCATION+new_file_name,ingredients,recipe,Myrecipes_id,user_id)
 
             cursor = connection.cursor()
             cursor.execute(query,record)
@@ -133,3 +133,27 @@ class MyRecipeResource(Resource):
             
         return{'result':'success'},200
 
+    # 삭제
+    @jwt_required()
+    def delete(self,Myrecipes_id):
+        
+        user_id=get_jwt_identity()
+        try:
+            connection = get_connection()
+            query = '''delete from posting
+                        where id = %s and userId = %s;'''
+            record = (Myrecipes_id,user_id)
+
+            cursor = connection.cursor()
+            cursor.execute(query,record)
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+        except Error as e:
+            print(e)
+            cursor.close()
+            connection.close()
+            return {'error':str(e)},500
+        
+        return {'result':'success'},200
