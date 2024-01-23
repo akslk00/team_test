@@ -8,7 +8,7 @@ from resources.recipes import MyRecipeResource, RecipeResource
 
 from resources.review import MyReviewResource, ReviewResource
 
-from resources.user import UserDelete, jwt_blocklist
+from resources.user import UserDelete, UserPasswordUpdate, jwt_blocklist
 
 from config import Config
 from resources.user import UserLoginResource, UserLogoutResource, UserRegisterResource
