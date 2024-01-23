@@ -4,6 +4,7 @@ from flask_restful import Api
 from resources.favorites import FavoritesResource
 from resources.follows import FollowResource
 from resources.history import historyTop10
+from resources.naver import NaverLogin
 
 from resources.recipelist import RecipeDetail, RecipeFollow, RecipeListMoreShowResource, RecipeListResource, RecipeMeResource, RecipeResource
 
@@ -64,6 +65,11 @@ api.add_resource(MyRecipeResource,'/myrecipes/<int:Myrecipes_id>')
 api.add_resource(ReviewResource,'/review/<int:postingId>')
 # 댓글 수정, 삭제
 api.add_resource(MyReviewResource,'/review/<int:postingId>/<int:reviewId>')
+
+
+
+# 네이버 로그인 API
+api.add_resource(NaverLogin , '/naverLogin')
 
 if __name__ == '__main__':
     app.run()
