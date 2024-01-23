@@ -37,6 +37,10 @@ api.add_resource(RecipeFollow, '/followrecipe')
 api.add_resource(historyTop10, '/history')
 
 
+# 댓글 작성
+api.add_resource(ReviewResource,'/review/<int:postingId>')
+# 댓글 수정, 삭제
+api.add_resource(MyReviewResource,'/review/<int:postingId>/<int:reviewId>')
 
 if __name__ == '__main__':
     app.run()
