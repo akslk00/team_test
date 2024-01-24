@@ -1,14 +1,14 @@
-from flask import app, jsonify, redirect, request
+import base64
+from flask import Flask, jsonify, redirect, request
 from flask_restful import Resource
 import requests
 
-class NaverLogin(Resource) :
-   
-    NAVER_CLIENT_ID = "lvlXKbxzsfeexwIET9zZ"
-    NAVER_CLIENT_SECRET = "K2ho6DDSQR"
-    NAVER_REDIRECT_URI = "naverLogin"
+class NaverLogin(Resource):
+    # NAVER_CLIENT_ID = "lvlXKbxzsfeexwIET9zZ"
+    # NAVER_CLIENT_SECRET = "K2ho6DDSQR"
+    # NAVER_REDIRECT_URI = "http://localhost:5000"
 
-    def get_naver_user_info(access_token):
+    def get_naver_user_info(self, access_token):
         user_info_url = "https://openapi.naver.com/v1/nid/me"
         headers = {"Authorization": f"Bearer {access_token}"}
 
@@ -17,13 +17,21 @@ class NaverLogin(Resource) :
 
         return user_info_json
 
-    @app.route("/login")
-    def login():
+    def get(self):
+
+        NAVER_CLIENT_ID = "lvlXKbxzsfeexwIET9zZ"
+        NAVER_REDIRECT_URI = "http://localhost:5000/recipe"
+        
         naver_login_url = f"https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={NAVER_CLIENT_ID}&redirect_uri={NAVER_REDIRECT_URI}&state=YOUR_STATE"
         return redirect(naver_login_url)
 
-    @app.route("/callback")
-    def callback():
+    def callback(self):
+
+        NAVER_CLIENT_ID = "lvlXKbxzsfeexwIET9zZ"
+        NAVER_CLIENT_SECRET = "K2ho6DDSQR"
+        NAVER_REDIRECT_URI = "http://localhost:5000/recipe"
+       
+
         code = request.args.get("code")
         state = request.args.get("state")
 
@@ -42,7 +50,7 @@ class NaverLogin(Resource) :
 
         if "access_token" in token_json:
             access_token = token_json["access_token"]
-            user_info = get_naver_user_info(access_token)
+            user_info = self.get_naver_user_info(access_token)  # 수정된 부분
             return jsonify(user_info)
         else:
             return jsonify({"error": "Failed to obtain access token"}), 400

@@ -70,6 +70,7 @@ api.add_resource(MyReviewResource,'/review/<int:postingId>/<int:reviewId>')
 
 # 네이버 로그인 API
 api.add_resource(NaverLogin , '/naverLogin')
+# api.add
 
 if __name__ == '__main__':
     app.run()
