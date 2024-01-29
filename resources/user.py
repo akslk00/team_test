@@ -237,6 +237,8 @@ class UserPasswordUpdate(Resource) :
         
         return{"result" : "비밀번호 변경이 완료되었습니다."}, 200
 
+# 아이디 찾기
+    
 
 
 

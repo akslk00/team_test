@@ -36,6 +36,7 @@ api.add_resource( UserRegisterResource, '/user/register')
 api.add_resource( UserLoginResource ,'/user/login')
 api.add_resource( UserLogoutResource,'/user/logout')
 api.add_resource( UserDelete,'/user/delete')
+# 비밀번호 재설정
 api.add_resource( UserPasswordUpdate,'/user/passwordUpdate')
 
 # 레시피 전체보기(간략히)
