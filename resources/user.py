@@ -27,7 +27,7 @@ class UserRegisterResource(Resource) :
             validate_email(data['email'])
         except EmailNotValidError as e :
             print(e)
-            return {'error' : str(e)}, 400
+            return {'error' : '이메일 형식이 올바른지 확인하세요.'}, 400
         
         # 3. 비밀번호 길이가 유효한지 체크한다.
         # 만약, 비번이 4자리 이상 14자리 이하라고 한다면
@@ -127,7 +127,7 @@ class UserLoginResource(Resource):
 
         # 비번이 맞지 않은 경우
         if check == False :
-            return {"error" : "비번이 맞지 않습니다"}, 406
+            return {"error" : "비밀번호가 맞지 않습니다"}, 406
         
         # JWT 토큰을 만들어서 클라이언트에게 응답한다
         access_token = create_access_token(result_list[0]['id']) 
