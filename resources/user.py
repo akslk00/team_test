@@ -40,6 +40,8 @@ class UserRegisterResource(Resource) :
         
         print(password)
 
+        
+
         # 5. DB의 user 테이블에 저장
         try :
             conncetion = get_connection()
